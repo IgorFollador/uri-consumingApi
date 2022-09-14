@@ -10,8 +10,10 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  TextEditingController _controllerCep = TextEditingController();
+  String _resultado = "...";
   _recuperaCep() async {
-    String cep = "99740000";
+    String cep = _controllerCep.text;
     var uri = Uri.http("viacep.com.br", "/ws/${cep}/json");
 
     http.Response res;
@@ -22,9 +24,13 @@ class _HomeState extends State<Home> {
       String logradouro = data["logradouro"];
       String complemento = data["complemento"];
       String bairro = data["bairro"];
-      String cidade = data["cidade"];
+      String localidade = data["localidade"];
+
+      setState(() {
+        _resultado = "$localidade $logradouro $bairro $complemento";
+      });
     } else {
-      print("Erro ${res.statusCode}");
+      print("Erro ${res.statusCode.toString}");
     }
   }
 
@@ -37,6 +43,26 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      body: Container(
+        padding: EdgeInsets.all(40),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              keyboardType: TextInputType.number,
+              decoration:
+                  InputDecoration(labelText: "Digite seu cep favorito: "),
+              style: TextStyle(fontSize: 22),
+              controller: _controllerCep,
+            ),
+            ElevatedButton(
+                onPressed: _recuperaCep, child: Text("Buscar Cidade")),
+            Text(_resultado)
+          ],
+        ),
+      ),
+    );
   }
 }
